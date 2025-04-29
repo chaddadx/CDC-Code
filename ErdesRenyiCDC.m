@@ -125,29 +125,29 @@ average_cumulative_pc2 = average_cumulative_pc2 / num_iterations;
 % Theoretical cumulative contributions
 % Initial contributions
 
-X1 = zeros(1,T);  % Theoretical cumulative contributions for Project 1
-X2 = zeros(1,T);  % Theoretical cumulative contributions for Project 2
-X1(1) = 1;
-X2(1) = 1;
+Z1 = zeros(1,T);  % Theoretical cumulative contributions for Project 1
+Z2 = zeros(1,T);  % Theoretical cumulative contributions for Project 2
+Z1(1) = 1;
+Z2(1) = 1;
  
 
 
-Z1 = zeros(1,T);
-Z2 = zeros(1,T);
-Z1(1) = 1;
-Z2(1) = 1;
+X1 = zeros(1,T);
+X2 = zeros(1,T);
+X1(1) = 1;
+X2(1) = 1;
 
 for t = 2:T
 
-    Z1(t) = Z1(t-1) * k * gamma1 + Z2(t-1) * k * alpha21;
-    Z2(t) =Z2(t-1) * k * gamma2 + Z1(t-1) * k * alpha12;
-    X1(t) = X1(t-1) + Z1(t);
-    X2(t) = X2(t-1) + Z2(t);
+    X1(t) = X1(t-1) * k * gamma1 + X2(t-1) * k * alpha21;
+    X2(t) =X2(t-1) * k * gamma2 + X1(t-1) * k * alpha12;
+    Z1(t) = Z1(t-1) + X1(t);
+    Z2(t) = Z2(t-1) + X2(t);
 end
 
 % Compute percentage errors between simulation and theory
-pe_pc1 = mean( abs((X1 - average_cumulative_pc1) ./ X1) ) * 100;
-pe_pc2 = mean( abs((X2 - average_cumulative_pc2) ./ X2) ) * 100;
+pe_pc1 = mean( abs((Z1 - average_cumulative_pc1) ./ Z1) ) * 100;
+pe_pc2 = mean( abs((Z2 - average_cumulative_pc2) ./ Z2) ) * 100;
 disp(['Percentage Error (PE) for Project 1: ' num2str(pe_pc1) '%']);
 disp(['Percentage Error (PE) for Project 2: ' num2str(pe_pc2) '%']);
 
@@ -240,7 +240,7 @@ set(gcf, 'Position', [100, 100, 1000, 500]);
 subplot(1, 2, 1);
 plot(1:T, average_cumulative_pc1, '-r', 'LineWidth', 2, 'DisplayName', 'Simulated Z_1(t)');
 hold on;
-plot(1:T, X1, '--b', 'LineWidth', 2, 'DisplayName', 'Theoretical Z_1(t)');
+plot(1:T, Z1, '--b', 'LineWidth', 2, 'DisplayName', 'Theoretical Z_1(t)');
 xlabel('Time step t');
 ylabel('Cumulative Contributions (Project 1)');
 legend;
@@ -248,7 +248,7 @@ legend;
 subplot(1, 2, 2);
 plot(1:T, average_cumulative_pc2, '-k', 'LineWidth', 2, 'DisplayName', 'Simulated Z_2(t)');
 hold on;
-plot(1:T, X2, '--g', 'LineWidth', 2, 'DisplayName', 'Theoretical Z_2(t)');
+plot(1:T, Z2, '--g', 'LineWidth', 2, 'DisplayName', 'Theoretical Z_2(t)');
 xlabel('Time step t');
 ylabel('Cumulative Contributions (Project 2)');
 legend;
@@ -261,10 +261,10 @@ disp(['PC2 Percentage Error: ', num2str(pe_pc2), '%']);
 
 disp('Final Cumulative Counts:');
 
-disp(['Theoretical PC1: ', num2str(X1())]);
+disp(['Theoretical PC1: ', num2str(Z1())]);
 disp(['Simulated PC1: ', num2str(average_cumulative_pc1())]);
 
 
-disp(['Theoretical PC2: ', num2str(X2())]);
+disp(['Theoretical PC2: ', num2str(Z2())]);
 disp(['Simulated PC2: ', num2str(average_cumulative_pc2())]);
 
