@@ -84,15 +84,6 @@ for i = 1:length(alpha12_range)
         end
 
 
-% PLOT THE RESULTS
-figure;
-imagesc(alpha21_range, alpha12_range, NE_type);
-colorbar;
-xlabel('\alpha_{21}');
-ylabel('\alpha_{12}');
-title('NE Type (0: No NE, 1: Pure NE, 2: Mixed NE)');
-set(gca, 'YDir', 'normal');
-
 
 
 %list all pure NEs for that alpha pair.
