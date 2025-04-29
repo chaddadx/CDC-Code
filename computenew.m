@@ -79,7 +79,7 @@ for i = 1:length(alpha12_range)
             NE_type(i,j) = 1;  % Mark as pure NE
         end
             
-                NE_type(i,j) = 0;  % No valid NE detected
+
             end
         end
 
