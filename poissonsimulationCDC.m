@@ -17,21 +17,23 @@ alpha21 = 0.2;         % Probability to switch from Project 2 to Project 1 (chil
 
 % At t=1 each project starts with one active agent.
 
-X1 = zeros(1,T);  % Theoretical cumulative contributions for Project 1
-X2 = zeros(1,T);  % Theoretical cumulative contributions for Project 2
+Z1 = zeros(1,T);  % Theoretical cumulative contributions for Project 1
+Z2 = zeros(1,T);  % Theoretical cumulative contributions for Project 2
+Z1(1) = 1;
+Z2(1) = 1;
+ 
+
+X1 = zeros(1,T);
+X2 = zeros(1,T);
 X1(1) = 1;
 X2(1) = 1;
 
-Z1 = zeros(1,T);
-Z2 = zeros(1,T);
-Z1(1) = 1;
-Z2(1) = 1;
-
 for t = 2:T
-    Z1(t) = Z1(t-1) * k * gamma1 + Z2(t-1) * k * alpha21;
-    Z2(t) =Z2(t-1) * k * gamma2 + Z1(t-1) * k * alpha12;
-    X1(t) = X1(t-1) + Z1(t);
-    X2(t) = X2(t-1) + Z2(t);
+
+    X1(t) = X1(t-1) * k * gamma1 + X2(t-1) * k * alpha21;
+    X2(t) =X2(t-1) * k * gamma2 + X1(t-1) * k * alpha12;
+    Z1(t) = Z1(t-1) + X1(t);
+    Z2(t) = Z2(t-1) + X2(t);
 end
 
 
@@ -289,7 +291,7 @@ set(gcf, 'Position', [100, 100, 1200, 500]);
 subplot(1,2,1);
 plot(1:T, average_cum1, '-r', 'LineWidth', 2, 'DisplayName', 'Simulated (Project 1)');
 hold on;
-plot(1:T, X1, '--k', 'LineWidth', 2, 'DisplayName', 'Theoretical (Project 1)');
+plot(1:T, Z1, '--k', 'LineWidth', 2, 'DisplayName', 'Theoretical (Project 1)');
 xlabel('Time step (t)');
 ylabel('Cumulative Contributions');
 title('Project 1 Contributions');
@@ -298,7 +300,7 @@ legend; grid on;
 subplot(1,2,2);
 plot(1:T, average_cum2, '-g', 'LineWidth', 2, 'DisplayName', 'Simulated (Project 2)');
 hold on;
-plot(1:T, X2, '--k', 'LineWidth', 2, 'DisplayName', 'Theoretical (Project 2)');
+plot(1:T, Z2, '--k', 'LineWidth', 2, 'DisplayName', 'Theoretical (Project 2)');
 xlabel('Time step (t)');
 ylabel('Cumulative Contributions');
 title('Project 2 Contributions');
@@ -322,16 +324,16 @@ disp(nodeTable);
 
 %percentage of error in comparison to the theoretical values
 %the percentage error at the end
-pe_pc1 = mean(abs((X1 - average_cum1) ./ X1)) * 100; % Percentage error for PC1
-pe_pc2 = mean(abs((X2 - average_cum2) ./X2)) * 100; % Percentage error for PC2
+pe_pc1 = mean(abs((Z1 - average_cum1) ./ Z1)) * 100; % Percentage error for PC1
+pe_pc2 = mean(abs((Z2 - average_cum2) ./Z2)) * 100; % Percentage error for PC2
 
 % Display percentage errors
 disp(['Percentage Error (PE) for PC1: ', num2str(pe_pc1), '%']);
 disp(['Percentage Error (PE) for PC2: ', num2str(pe_pc2), '%']);
 
-disp('Theoretical Cumulative Contributions : X̄ _1(t)'); disp(X1);
+disp('Theoretical Cumulative Contributions : X̄ _1(t)'); disp(Z1);
 disp('Simulated Cumulative Contributions (PC1): Z1'); disp(average_cum1);
-disp('Theoretical Cumulative Contributions : X̄ _2(t)'); disp(X2);
+disp('Theoretical Cumulative Contributions : X̄ _2(t)'); disp(Z2);
 disp('Simulated Cumulative Contributions (PC2): Z2'); disp(average_cum2);
 disp('Comparison: Theoretical vs. Simulated values are close when lambda approximates the average children per node.');
 
