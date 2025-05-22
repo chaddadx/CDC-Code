@@ -50,6 +50,15 @@ for iter = 1:num_iterations
     cum_pc2 = zeros(1, T);
     cum_pc1(1) = sum(state(:,1) == 1 | state(:,1) == -1);
     cum_pc2(1) = sum(state(:,1) == 2 | state(:,1) == -2);
+
+
+    
+ever_pc1 = false(N,1);
+ever_pc2 = false(N,1);
+ever_pc1(state(:,1)==1) = true;
+ever_pc2(state(:,1)==2) = true;
+cum_pc1(1) = sum(ever_pc1);
+cum_pc2(1) = sum(ever_pc2);
     
     % Time evolution for t = 2 to T
     for t = 2:T
@@ -116,6 +125,11 @@ for iter = 1:num_iterations
     average_cumulative_pc2 = average_cumulative_pc2 + cum_pc2;
     all_cumulative_pc1(iter, :) = cum_pc1;
     all_cumulative_pc2(iter, :) = cum_pc2;
+
+    ever_pc1 = ever_pc1 | (state(:,t) == 1);
+    ever_pc2 = ever_pc2 | (state(:,t) == 2);
+    cum_pc1(t) = sum(ever_pc1);
+    cum_pc2(t) = sum(ever_pc2);
 end
 
 % Compute averages over iterations
@@ -152,66 +166,20 @@ disp(['Percentage Error (PE) for Project 1: ' num2str(pe_pc1) '%']);
 disp(['Percentage Error (PE) for Project 2: ' num2str(pe_pc2) '%']);
 
 % Visualization of the dynamics on the ER graph for one sample run
-
-state_vis = zeros(N, T);
-state_vis(:,1) = 0;
-vis_nodes = randperm(N,2);
-state_vis(vis_nodes(1),1) = 1;  % activate one node with project 1
-state_vis(vis_nodes(2),1) = 2;  % activate one node with project 2
+state_vis = state; 
 
 % Create graph object for plotting
 G = graph(A);
 
 figure;
 for t = 1:T
-    if t > 1
-        new_state_vis = state_vis(:, t-1);
-        % Active nodes become silent:
-        active_idx = find(state_vis(:, t-1) == 1 | state_vis(:, t-1) == 2);
-        for i = 1:length(active_idx)
-            idx = active_idx(i);
-            if state_vis(idx, t-1) == 1
-                new_state_vis(idx) = -1;
-            elseif state_vis(idx, t-1) == 2
-                new_state_vis(idx) = -2;
-            end
-        end
-        % Inactive nodes can be activated by active neighbors from previous time step.
-        inactive_nodes = find(state_vis(:, t-1) == 0);
-        for j = 1:length(inactive_nodes)
-            node = inactive_nodes(j);
-            neighbors = find(A(node, :));
-            active_neighbors = neighbors( state_vis(neighbors, t-1) == 1 | state_vis(neighbors, t-1) == 2 );
-            if ~isempty(active_neighbors)
-                active_neighbors = active_neighbors(randperm(length(active_neighbors)));
-            end
-            for n_idx = 1:length(active_neighbors)
-                neighbor = active_neighbors(n_idx);
-                if state_vis(neighbor, t-1) == 1
-                    r = rand();
-                    if r < gamma1
-                        new_state_vis(node) = 1;
-                        break;
-                    elseif r < gamma1 + alpha12
-                        new_state_vis(node) = 2;
-                        break;
-                    end
-                elseif state_vis(neighbor, t-1) == 2
-                    r = rand();
-                    if r < gamma2
-                        new_state_vis(node) = 2;
-                        break;
-                    elseif r < gamma2 + alpha21
-                        new_state_vis(node) = 1;
-                        break;
-                    end
-                end
-            end
-        end
-        state_vis(:, t) = new_state_vis;
-    end
     
-    % Plot the network at time t
+    % Print node states for debugging
+    fprintf('Time step %d — node states:\n', t);
+    disp(state_vis(:,t)');
+    
+
+    % Plot the network at time t using the precomputed state_vis
     h = plot(G);
     node_colors = zeros(N, 3);
     for idx = 1:N
@@ -229,9 +197,11 @@ for t = 1:T
         end
     end
     h.NodeColor = node_colors;
-    title(['ER Graph at time step t = ' num2str(t)]);
+    title(sprintf('ER Graph at time step t = %d', t));
     pause(0.5);
+    
 end
+
 
 % Plot simulated cumulative contributions vs. theoretical values
 figure;
